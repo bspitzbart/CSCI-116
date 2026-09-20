@@ -5,10 +5,10 @@
 ###########################################################################################
 setwd("C:/Users/brs416/Desktop/CSCI-E-116_bigdata/Week2/Data and Script 2")
 library(readxl) 
-library(writexl)  
+#library(writexl)  
 library(corrplot) 
 library(dplyr)
-library(forecast)  
+#library(forecast)  
 
 corp_tax = read_excel("P02_Corporate tax.xlsx")
 # look at data
@@ -26,6 +26,7 @@ checkresiduals(eq2)
 eq3 = lm(ypcg ~ ctax + ypc2000 + dty + ctax*dty, data = corp_tax)
 summary(eq3)
 checkresiduals(eq3)
+# the fits match those produced in the article.
 
 # predict hypothetical ypcg
 est_ctax = 20
@@ -61,70 +62,14 @@ text(38.5,1,"USA",pos=4,cex=0.6)
 text(39.5,0.6,"JPN",pos=4,cex=0.6)
 text(37.5,-0.5,"ITY",pos=4,cex=0.6)
 
-##
-## Simulations of Fixed effect DGP biased estimated by OLS
-##
-x1 = rnorm(60, mean=5, sd=3)
-y1 = 7 + 0.8*x1 + rnorm(60, mean=0, sd=1)
-x2 = rnorm(60, mean=10, sd=3)
-y2 = 13 + 0.8*x2 + rnorm(60, mean=0, sd=1)
-x3 = rnorm(60, mean=15, sd=3)
-y3 = 20 + 0.8*x3 + rnorm(60, mean=0, sd=1)
-x = c(x1, x2, x3)
-y = c(y1, y2, y3)
-ols = lm(y~x); summary(ols)
-plot(x,y, pch=20); abline(lm(y ~ x), col="red")
+# Try some other variables
+par(mfrow = c(2, 3))
+plot(corp_tax$ctax, corp_tax$ypcg)
+plot(corp_tax$ypc2000, corp_tax$ypcg)
+plot(corp_tax$dty, corp_tax$ypcg)
+plot(corp_tax$trade, corp_tax$ypcg)
+plot(corp_tax$ihc, corp_tax$ypcg)
+plot(corp_tax$y2000, corp_tax$ypcg)
 
-x1 = rnorm(60, mean=15, sd=3)
-y1 = 7 + 0.8*x1 + rnorm(60, mean=0, sd=1)
-x2 = rnorm(60, mean=10, sd=3)
-y2 = 13 + 0.8*x2 + rnorm(60, mean=0, sd=1)
-x3 = rnorm(60, mean=5, sd=3)
-y3 = 20 + 0.8*x3 + rnorm(60, mean=0, sd=1)
-x = c(x1, x2, x3)
-y = c(y1, y2, y3)
-ols = lm(y~x); summary(ols)
-plot(x,y, pch=20); abline(lm(y ~ x), col="red")
-
-##
-## Election data
-##
-election = read_excel("W01c_election.xlsx")  
-str(election)
-
-plot(election$Nonwhite, election$Dvote, pch=20)
-plotmeans(Dvote~state, data=election)
-plotmeans(Dvote~state, data=election, p=0.8)
-plotmeans(Dvote~year, data=election)
-
-# Dvote: % of votes for Democrat presidential candidates
-# Nonwhite: % of residents who are nonwhite
-# Christian: % of residents who are evangelical Christians
-# Mhincome: Median household income (level data)
-# Mhincomeg: Median household income growth rate
-
-# Simple OLS
-election12 = subset(election, year==2012)
-fit01 = lm(Dvote ~ Nonwhite + Christian + Mhincome, data = election12)
-summary(fit01)
-
-# Pooled OLS (Across multiple years)
-fit02 = lm(Dvote ~ Nonwhite + Christian + Mhincome + Mhincomeg, data=election)
-summary(fit02)
-checkresiduals(fit02) 
-
-# Regional Fixed Effect
-fit03 = lm(Dvote ~ state + Nonwhite + Christian + Mhincome , data = election)
-summary(fit03)
-checkresiduals(fit03) 
-
-# Regional plus Time Fixed Effect
-fit04 = lm(Dvote ~ state + factor(year) + Nonwhite + Christian + Mhincome , data = election)
-summary(fit04)
-checkresiduals(fit04) 
-
-fit05 = lm(Dvote ~ 0 + state + factor(year) + Nonwhite + Christian + Mhincome , data = election)
-summary(fit05)
-
-fit06 = lm(Dvote ~ -1 + state + factor(year) + Nonwhite + Christian + Mhincome , data = election)
-summary(fit06)
+eq4 = lm(ypcg ~ ctax + ypc2000 + dty + trade*ypc2000, data = corp_tax)
+summary(eq4)
